@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dido O'Reilly — The Official parkrun App: Reimagined Case Study</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Young Serif (Headings) & Outfit (Body / UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            richBlack: '#050505',
+                            vibrantOrange: '#FB6B05',
+                            warmYellow: '#FFCA45',
+                            hotPink: '#EE5FA6',
+                            softCoral: '#FC958D',
+                            brightRed: '#EC220D',
+                            softCream: '#FDFBF7',
+                            darkCharcoal: '#111111',
+                            bgLight: '#FAF9F6',
+                            bgDark: '#050505',
+                            cardLight: '#FFFFFF',
+                            cardDark: '#0F0F0F',
+                            borderLight: '#E8E5DF',
+                            borderDark: '#242424',
+                            mutedLight: '#524F4A',
+                            mutedDark: '#B0ACAE'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Young Serif', 'serif'],
+                        sans: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Focus Styles for Keyboard Accessibility */
+        *:focus-visible {
+            outline: 3px solid #FB6B05 !important;
+            outline-offset: 3px !important;
+            border-radius: 6px;
+        }
+
+        /* Smooth Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FB6B05;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #EE5FA6;
+        }
+
+        /* Glassmorphism Header */
+        .glass-nav {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Gradient Highlight text helpers */
+        .text-gradient-orange-pink {
+            background: linear-gradient(135deg, #FB6B05 0%, #EE5FA6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-yellow-orange {
+            background: linear-gradient(135deg, #FFCA45 0%, #FB6B05 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Card Lift & Hover Micro-states */
+        .card-hover-effect {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-4px);
+        }
+        .card-image-hover img {
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .card-hover-effect:hover .card-image-hover img {
+            transform: scale(1.04);
+        }
+
+        /* Active Button Spring Click Effect */
+        .btn-interactive {
+            transition: transform 0.15s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .btn-interactive:active {
+            transform: scale(0.96) !important;
+        }
+
+        /* Scroll Animation States */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Modal Drawer Slide Animation */
+        .drawer-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .drawer-panel {
+            transform: translateX(100%);
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .drawer-overlay.active .drawer-panel {
+            transform: translateX(0);
+        }
+
+        /* Accordion Expansion Smooth Transition */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+            opacity: 0;
+        }
+        .accordion-content.open {
+            max-height: 1200px;
+            opacity: 1;
+        }
+
+        /* View Switching Smoothness */
+        .page-view {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .page-view.hidden-view {
+            display: none !important;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+    </style>
+</head>
+
+<body class="bg-brand-bgLight dark:bg-brand-bgDark text-brand-richBlack dark:text-gray-100 font-sans transition-colors duration-500 selection:bg-brand-vibrantOrange selection:text-white antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- SKIP TO CONTENT LINK (ACCESSIBILITY) -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-brand-vibrantOrange focus:text-white focus:px-6 focus:py-3 focus:rounded-lg focus:shadow-xl font-medium text-sm">
+        Skip to main content
+    </a>
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="fixed top-0 left-0 w-full z-40 glass-nav border-b border-brand-borderLight/80 dark:border-brand-borderDark/80 bg-brand-bgLight/85 dark:bg-brand-bgDark/85 transition-colors duration-500">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
+            
+            <!-- Logo -->
+            <button type="button" onclick="switchView('portfolio')" aria-label="Dido O'Reilly Portfolio Home" class="group flex items-center space-x-3 btn-interactive rounded-lg text-left">
+                <img src="https://cdn.prod.website-files.com/6ac50fe227b1ec6b8e535c8f/6ac61788c6abfb927e034bcc_fae5d8fb0de533a537d1d83e6acdacd0_Logo%201.svg" alt="Dido O'Reilly Logo" class="h-9 dark:invert transition-transform duration-300 group-hover:scale-105">
+            </button>
+
+            <!-- Navigation Links (View Switching & Anchors) -->
+            <nav aria-label="Primary Navigation" class="hidden md:flex items-center space-x-8 text-sm font-medium tracking-wide">
+                <button type="button" onclick="switchView('portfolio')" class="nav-tab-btn hover:text-brand-vibrantOrange transition-colors py-2 border-b-2 border-transparent hover:border-brand-vibrantOrange">All Works</button>
+                <button type="button" onclick="switchView('parkrun')" class="nav-tab-btn text-brand-vibrantOrange font-semibold py-2 border-b-2 border-brand-vibrantOrange">parkrun Case Study</button>
+                <a href="#about" onclick="switchView('portfolio')" class="hover:text-brand-vibrantOrange transition-colors py-2 border-b-2 border-transparent hover:border-brand-vibrantOrange">About</a>
+                <a href="#contact" class="hover:text-brand-vibrantOrange transition-colors py-2 border-b-2 border-transparent hover:border-brand-vibrantOrange">Contact</a>
+            </nav>
+
+            <!-- Brand Color Swatches & Theme Toggle -->
+            <div class="flex items-center space-x-4">
+                <!-- Signature Palette Swatches -->
+                <div class="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 rounded-full border border-brand-borderLight dark:border-brand-borderDark bg-white dark:bg-brand-cardDark shadow-sm" aria-label="Brand Color Palette Swatches" role="region">
+                    <span class="w-3 h-3 rounded-full bg-[#FB6B05]" title="Vibrant Orange: #FB6B05"></span>
+                    <span class="w-3 h-3 rounded-full bg-[#FFCA45]" title="Warm Yellow: #FFCA45"></span>
+                    <span class="w-3 h-3 rounded-full bg-[#EE5FA6]" title="Hot Pink: #EE5FA6"></span>
+                    <span class="w-3 h-3 rounded-full bg-[#FC958D]" title="Soft Coral: #FC958D"></span>
+                    <span class="w-3 h-3 rounded-full bg-[#EC220D]" title="Bright Red: #EC220D"></span>
+                </div>
+
+                <!-- Dark / Light Theme Toggle -->
+                <button id="theme-toggle" type="button" aria-label="Toggle Color Theme" class="btn-interactive p-2.5 rounded-full border border-brand-borderLight dark:border-brand-borderDark hover:bg-brand-borderLight/50 dark:hover:bg-brand-borderDark/50 transition-all">
+                    <i id="theme-toggle-dark-icon" class="fa-solid fa-moon text-sm hidden" aria-hidden="true"></i>
+                    <i id="theme-toggle-light-icon" class="fa-solid fa-sun text-sm hidden text-brand-warmYellow" aria-hidden="true"></i>
+                </button>
+
+                <!-- Mobile Navigation Toggle Button -->
+                <button id="mobile-menu-btn" type="button" aria-label="Toggle Navigation Menu" aria-expanded="false" aria-controls="mobile-menu" class="btn-interactive md:hidden p-2.5 rounded-lg border border-brand-borderLight dark:border-brand-borderDark text-xl">
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden border-b border-brand-borderLight dark:border-brand-borderDark bg-brand-bgLight/95 dark:bg-brand-bgDark/95 px-6 py-6 space-y-4">
+            <nav aria-label="Mobile Navigation" class="flex flex-col space-y-3">
+                <button type="button" onclick="switchView('portfolio'); closeMobileMenu();" class="text-left font-serif text-2xl hover:text-brand-vibrantOrange py-1">All Portfolio Works</button>
+                <button type="button" onclick="switchView('parkrun'); closeMobileMenu();" class="text-left font-serif text-2xl text-brand-vibrantOrange py-1">parkrun Case Study</button>
+                <a href="#about" onclick="switchView('portfolio'); closeMobileMenu();" class="block font-serif text-2xl hover:text-brand-vibrantOrange py-1">About Me</a>
+                <a href="#contact" onclick="closeMobileMenu();" class="block font-serif text-2xl hover:text-brand-vibrantOrange py-1">Contact</a>
+            </nav>
+            <div class="pt-4 border-t border-brand-borderLight dark:border-brand-borderDark flex items-center justify-between text-xs text-brand-mutedLight dark:text-brand-mutedDark">
+                <span>London, UK — <span id="mobile-clock">00:00:00 GMT</span></span>
+                <span class="text-brand-vibrantOrange font-medium">● Open for Projects</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="pt-20 flex-grow">
+
+        <!-- ========================================================================= -->
+        <!-- VIEW 1: DEDICATED PARKRUN CASE STUDY LANDING PAGE (PRIMARY / DEFAULT)      -->
+        <!-- ========================================================================= -->
+        <section id="parkrun-case-study-view" class="page-view max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-20 space-y-20">
+            
+            <!-- BREADCRUMB & BACK BUTTON -->
+            <div class="flex items-center justify-between pt-4">
+                <button type="button" onclick="switchView('portfolio')" class="btn-interactive inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-brand-vibrantOrange hover:text-brand-brightRed">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    <span>Back to All Projects</span>
+                </button>
+                <span class="text-xs text-brand-mutedLight dark:text-brand-mutedDark font-medium">Case Study 01 of 03</span>
+            </div>
+
+            <!-- HERO SECTION -->
+            <div class="space-y-8 reveal-on-scroll">
+                <div class="inline-flex items-center space-x-2 text-xs uppercase tracking-widest font-semibold px-4 py-2 rounded-full border border-brand-vibrantOrange/30 bg-brand-vibrantOrange/10 text-brand-vibrantOrange">
+                    <span class="w-2 h-2 rounded-full bg-brand-vibrantOrange animate-pulse" aria-hidden="true"></span>
+                    <span>UX / UI Case Study &amp; Rebrand</span>
+                </div>
+
+                <h1 class="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal leading-[1.15] text-brand-richBlack dark:text-white">
+                    The Official parkrun App: <span class="text-gradient-orange-pink">Reimagined</span>
+                </h1>
+
+                <p class="text-xl md:text-2xl text-brand-mutedLight dark:text-brand-mutedDark max-w-4xl font-light leading-relaxed">
+                    Bringing the parkrun official brand identity to life while streamlining UX, redesigning UI, improving accessibility (WCAG AA), and introducing safe social friendship features.
+                </p>
+
+                <!-- Project Metadata Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 p-6 sm:p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark shadow-sm">
+                    <div>
+                        <span class="text-xs uppercase tracking-wider text-brand-mutedLight dark:text-brand-mutedDark block mb-1">Role</span>
+                        <span class="font-semibold text-sm sm:text-base">Lead UX/UI Designer</span>
+                    </div>
+                    <div>
+                        <span class="text-xs uppercase tracking-wider text-brand-mutedLight dark:text-brand-mutedDark block mb-1">Timeline</span>
+                        <span class="font-semibold text-sm sm:text-base">6 Months (Discovery to Launch)</span>
+                    </div>
+                    <div>
+                        <span class="text-xs uppercase tracking-wider text-brand-mutedLight dark:text-brand-mutedDark block mb-1">Platform</span>
+                        <span class="font-semibold text-sm sm:text-base">iOS &amp; Android (Native)</span>
+                    </div>
+                    <div>
+                        <span class="text-xs uppercase tracking-wider text-brand-mutedLight dark:text-brand-mutedDark block mb-1">Key Impact</span>
+                        <span class="font-semibold text-sm sm:text-base text-brand-vibrantOrange">70%+ Satisfaction &amp; WCAG AA</span>
+                    </div>
+                </div>
+
+                <!-- Hero Image Showcase -->
+                <div class="relative aspect-[16/9] rounded-3xl overflow-hidden bg-brand-richBlack border border-brand-borderLight dark:border-brand-borderDark shadow-2xl">
+                    <img src="https://cdn.prod.website-files.com/6ac50fe227b1ec6b8e535c8f/6accdfd425c71e85d499b565_parkrun-Rebrand-Visual.png" alt="The Official parkrun App UI Interface Redesign Visual" class="w-full h-full object-cover">
+                    <div class="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-black/60 backdrop-blur-md text-white text-xs flex justify-between items-center">
+                        <span>Official parkrun Mobile App Interface System</span>
+                        <span class="hidden sm:inline-block bg-brand-vibrantOrange px-3 py-1 rounded-full font-medium">Rebranded 2024</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 1: CONTEXT & OVERVIEW -->
+            <section class="space-y-12 reveal-on-scroll border-t border-brand-borderLight dark:border-brand-borderDark pt-16">
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-brand-vibrantOrange font-semibold">01 / Context &amp; Overview</span>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-normal mt-2">Background &amp; Problem Statement</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Context Card 1 -->
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                        <div class="w-10 h-10 rounded-full bg-[#FB6B05]/10 text-[#FB6B05] flex items-center justify-center font-bold">1</div>
+                        <h3 class="font-serif text-xl">Acquisition &amp; Rebrand</h3>
+                        <p class="text-sm text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed">
+                            Following parkrun's acquisition of the unofficial, custom-built "5K app," the application needed a comprehensive overhaul to align with official parkrun brand guidelines (colors, fonts, visual identity) without alienating its passionate user base.
+                        </p>
+                    </div>
+
+                    <!-- Context Card 2 -->
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                        <div class="w-10 h-10 rounded-full bg-[#EE5FA6]/10 text-[#EE5FA6] flex items-center justify-center font-bold">2</div>
+                        <h3 class="font-serif text-xl">Community Challenges</h3>
+                        <p class="text-sm text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed">
+                            Grassroots community challenges (e.g., Alphabeteer, Stopwatch Bingo) lacked official brand alignment, had potential intellectual property issues, and suffered from accessibility barriers and unrefined UI tracking.
+                        </p>
+                    </div>
+
+                    <!-- Context Card 3 -->
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                        <div class="w-10 h-10 rounded-full bg-[#EC220D]/10 text-[#EC220D] flex items-center justify-center font-bold">3</div>
+                        <h3 class="font-serif text-xl">Social Safeguarding</h3>
+                        <p class="text-sm text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed">
+                            The existing app lacked modern, secure two-way social consent mechanics, requiring a new social architecture to meet privacy, safeguarding, and anti-harassment standards.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Project Goals Callout -->
+                <div class="p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-brand-vibrantOrange/10 via-brand-hotPink/10 to-brand-warmYellow/10 border border-brand-vibrantOrange/30 space-y-6">
+                    <h3 class="font-serif text-2xl sm:text-3xl text-brand-richBlack dark:text-white">Core Project Goals</h3>
+                    <ul class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-brand-richBlack dark:text-gray-200">
+                        <li class="flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-check text-brand-vibrantOrange mt-1" aria-hidden="true"></i>
+                            <span><strong>Brand Alignment:</strong> Seamlessly rebrand the app, optimise bottom navigation, and establish a clear homepage dashboard.</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-check text-brand-vibrantOrange mt-1" aria-hidden="true"></i>
+                            <span><strong>WCAG Accessibility:</strong> Create official badge graphics, redesign progress tracking UI, and guarantee full WCAG accessibility.</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-check text-brand-vibrantOrange mt-1" aria-hidden="true"></i>
+                            <span><strong>Safe Social Model:</strong> Design an intuitive, secure friendship model (search, follow/follower management, and blocking) for fast finish-line interactions.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Target Users Cards -->
+                <div class="space-y-6">
+                    <h3 class="font-serif text-2xl">Target User Groups</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div class="p-6 rounded-2xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark">
+                            <i class="fa-solid fa-users text-2xl text-brand-vibrantOrange mb-3" aria-hidden="true"></i>
+                            <h4 class="font-semibold text-base mb-1">Engaged Power Users</h4>
+                            <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">Patreon subscription members, ambassadors, event directors, and core parkrun staff.</p>
+                        </div>
+                        <div class="p-6 rounded-2xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark">
+                            <i class="fa-solid fa-person-running text-2xl text-brand-hotPink mb-3" aria-hidden="true"></i>
+                            <h4 class="font-semibold text-base mb-1">Global Runners &amp; Walkers</h4>
+                            <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">Casual and regular parkrunners across 20+ global territories searching for barcodes &amp; stats.</p>
+                        </div>
+                        <div class="p-6 rounded-2xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark">
+                            <i class="fa-solid fa-universal-access text-2xl text-brand-brightRed mb-3" aria-hidden="true"></i>
+                            <h4 class="font-semibold text-base mb-1">Accessibility Group</h4>
+                            <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">Members of the internal Digital Accessibility User Group (blind, visually impaired, colorblind, neurodivergent).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: PROCESS & RESEARCH METHODOLOGY -->
+            <section class="space-y-12 reveal-on-scroll border-t border-brand-borderLight dark:border-brand-borderDark pt-16">
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-brand-vibrantOrange font-semibold">02 / Process &amp; Methodology</span>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-normal mt-2">Discovery, Research &amp; Testing</h2>
+                </div>
+
+                <!-- Process Steps Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-brand-vibrantOrange">Step 1 / Quantitative Data &amp; Competitors</span>
+                        <h3 class="font-serif text-2xl">Analytics &amp; Heuristics</h3>
+                        <ul class="text-sm text-brand-mutedLight dark:text-brand-mutedDark space-y-2 list-disc list-inside leading-relaxed">
+                            <li>Analysed Firebase analytics to identify high-traffic app screens and drop-off points.</li>
+                            <li>Conducted direct/indirect competitor benchmarking (Strava, Nike Run Club, Garmin).</li>
+                            <li>Heuristic evaluations focused on social friendship mechanics and barcode lookup speed.</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-brand-vibrantOrange">Step 2 / Surveys &amp; Consultations</span>
+                        <h3 class="font-serif text-2xl">User Journey Mapping</h3>
+                        <ul class="text-sm text-brand-mutedLight dark:text-brand-mutedDark space-y-2 list-disc list-inside leading-relaxed">
+                            <li>Distributed targeted preference surveys to 500+ Patreon and community members (achieving a 64% response rate).</li>
+                            <li>Evaluated dashboard widget priority and bottom navigation concepts.</li>
+                            <li>Mapped user journeys specifically tailored for fast, time-sensitive post-event environments.</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-brand-vibrantOrange">Step 3 / Categorisation &amp; Identity</span>
+                        <h3 class="font-serif text-2xl">Badge &amp; Challenge Systems</h3>
+                        <ul class="text-sm text-brand-mutedLight dark:text-brand-mutedDark space-y-2 list-disc list-inside leading-relaxed">
+                            <li>Categorised challenges into core types: Finishing events, Volunteering, or both.</li>
+                            <li>Mapped parkrun official brand color coding to each challenge category.</li>
+                            <li>Tested icon badge shapes (hexagons vs. rounded shapes) and layouts (Tile grid vs. List view).</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-brand-vibrantOrange">Step 4 / Mixed-Methods Usability</span>
+                        <h3 class="font-serif text-2xl">Focus Groups &amp; Prototypes</h3>
+                        <ul class="text-sm text-brand-mutedLight dark:text-brand-mutedDark space-y-2 list-disc list-inside leading-relaxed">
+                            <li>Facilitated 7 focus groups (15 staff, 17 ambassadors) across London, Leeds, Europe, and APAC.</li>
+                            <li>Engaged 15 members of the Digital Accessibility User Group to evaluate contrast, text legibility, screen readers, and dark mode.</li>
+                            <li>1-on-1 usability testing with 15+ users using interactive high-fidelity Figma prototypes.</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- FIGURES 1 & 2 INTERACTIVE CARDS -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6">
+                    
+                    <!-- Figure 1 -->
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                        <div class="aspect-[16/10] bg-brand-bgLight dark:bg-brand-bgDark rounded-2xl border border-brand-borderLight dark:border-brand-borderDark p-6 flex flex-col justify-between">
+                            <div class="flex justify-between items-center text-xs font-mono text-brand-mutedLight dark:text-brand-mutedDark">
+                                <span>FIGURE 1: USER JOURNEY MAP</span>
+                                <span class="text-brand-vibrantOrange">ADDING FRIENDS FLOW</span>
+                            </div>
+                            <div class="space-y-3 py-4">
+                                <div class="flex items-center space-x-2 text-xs">
+                                    <span class="px-2 py-1 bg-red-500/20 text-red-500 font-bold rounded">Pain Point</span>
+                                    <span class="text-brand-mutedLight dark:text-brand-mutedDark">Search result ambiguity; unconfirmed request states.</span>
+                                </div>
+                                <div class="w-full bg-brand-borderLight dark:bg-brand-borderDark h-2 rounded-full overflow-hidden">
+                                    <div class="bg-gradient-to-r from-brand-vibrantOrange to-brand-hotPink h-full w-3/4"></div>
+                                </div>
+                                <div class="flex justify-between text-xs font-semibold">
+                                    <span>Finish Line Event</span>
+                                    <span>Search ID</span>
+                                    <span class="text-brand-vibrantOrange">Instant Follow State</span>
+                                </div>
+                            </div>
+                            <div class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">
+                                Mapping friction during time-sensitive post-run interactions at event finish funnels.
+                            </div>
+                        </div>
+                        <h4 class="font-serif text-xl">Figure 1: Friend Journey Friction Analysis</h4>
+                        <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed">
+                            Existing Journey Map for adding friends within the parkrun app, highlighting feature pain points, privacy concerns, and speed-of-access opportunities.
+                        </p>
+                    </div>
+
+                    <!-- Figure 2 -->
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                        <div class="aspect-[16/10] bg-brand-bgLight dark:bg-brand-bgDark rounded-2xl border border-brand-borderLight dark:border-brand-borderDark p-6 flex flex-col justify-between">
+                            <div class="flex justify-between items-center text-xs font-mono text-brand-mutedLight dark:text-brand-mutedDark">
+                                <span>FIGURE 2: DASHBOARD LAYOUT OPTIONS</span>
+                                <span class="text-brand-hotPink">500+ COMMUNITY TESTERS</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 py-2">
+                                <div class="p-3 border-2 border-brand-vibrantOrange rounded-xl bg-brand-vibrantOrange/5 text-center">
+                                    <span class="text-xs font-bold block mb-1 text-brand-vibrantOrange">Design A1 ("Trio")</span>
+                                    <span class="text-2xl font-serif font-bold">47%</span>
+                                    <span class="text-[10px] block text-brand-mutedLight dark:text-brand-mutedDark mt-1">3 Landscape Cards (Chosen)</span>
+                                </div>
+                                <div class="p-3 border border-brand-borderLight dark:border-brand-borderDark rounded-xl text-center">
+                                    <span class="text-xs font-bold block mb-1">Design B2 ("Quart")</span>
+                                    <span class="text-2xl font-serif font-bold text-brand-mutedLight dark:text-brand-mutedDark">53%</span>
+                                    <span class="text-[10px] block text-brand-mutedLight dark:text-brand-mutedDark mt-1">4 Compact Grid Widgets</span>
+                                </div>
+                            </div>
+                            <div class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">
+                                Selected Design A1 because landscape card width offered superior typography contrast &amp; legibility.
+                            </div>
+                        </div>
+                        <h4 class="font-serif text-xl">Figure 2: Iterative Dashboard Structure Testing</h4>
+                        <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed">
+                            Iterative dashboard options testing 3-element ("Trio") vs. 4-element widget structures across 500+ Patreon and community users.
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SECTION 3: KEY INSIGHTS & DESIGN DECISIONS -->
+            <section class="space-y-12 reveal-on-scroll border-t border-brand-borderLight dark:border-brand-borderDark pt-16">
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-brand-vibrantOrange font-semibold">03 / Key Insights &amp; Decisions</span>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-normal mt-2">Design Rationale &amp; Trade-Offs</h2>
+                </div>
+
+                <!-- Interactive Accordion Deep-Dives -->
+                <div class="space-y-4">
+                    
+                    <!-- Accordion Item 1 -->
+                    <div class="border border-brand-borderLight dark:border-brand-borderDark rounded-2xl bg-brand-cardLight dark:bg-brand-cardDark overflow-hidden">
+                        <button type="button" aria-expanded="true" aria-controls="decision-content-1" class="accordion-header w-full px-8 py-6 text-left flex items-center justify-between font-serif text-2xl hover:text-brand-vibrantOrange transition-colors btn-interactive" onclick="toggleMainAccordion(this)">
+                            <span>1. Navigation &amp; Homepage Architecture</span>
+                            <i class="fa-solid fa-minus text-sm transition-transform duration-300" aria-hidden="true"></i>
+                        </button>
+                        <div id="decision-content-1" class="accordion-content open px-8 text-brand-mutedLight dark:text-brand-mutedDark text-sm">
+                            <div class="pb-6 pt-2 space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div class="p-4 rounded-xl bg-brand-bgLight dark:bg-brand-bgDark">
+                                        <h4 class="font-semibold text-brand-richBlack dark:text-white mb-1">5-Feature Nav Bar</h4>
+                                        <p class="text-xs leading-relaxed">Selected a 5-icon bottom navigation bar (Home, Extras, Events, Barcode, Profile) to guarantee 2-click access to core utilities.</p>
+                                    </div>
+                                    <div class="p-4 rounded-xl bg-brand-bgLight dark:bg-brand-bgDark">
+                                        <h4 class="font-semibold text-brand-richBlack dark:text-white mb-1">3-Element "Trio" Dashboard</h4>
+                                        <p class="text-xs leading-relaxed">Despite a 47% vs 53% split, Design A1 ("Trio") was chosen because landscape cards offered superior legibility over crowded icons.</p>
+                                    </div>
+                                    <div class="p-4 rounded-xl bg-brand-bgLight dark:bg-brand-bgDark">
+                                        <h4 class="font-semibold text-brand-richBlack dark:text-white mb-1">Map &amp; Scope Rationalization</h4>
+                                        <p class="text-xs leading-relaxed">Top maps were less useful in low event-density regions. Custom widget ordering was deferred to V2 due to API constraints.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion Item 2 -->
+                    <div class="border border-brand-borderLight dark:border-brand-borderDark rounded-2xl bg-brand-cardLight dark:bg-brand-cardDark overflow-hidden">
+                        <button type="button" aria-expanded="false" aria-controls="decision-content-2" class="accordion-header w-full px-8 py-6 text-left flex items-center justify-between font-serif text-2xl hover:text-brand-vibrantOrange transition-colors btn-interactive" onclick="toggleMainAccordion(this)">
+                            <span>2. Challenge Layout &amp; WCAG Accessibility Updates</span>
+                            <i class="fa-solid fa-plus text-sm transition-transform duration-300" aria-hidden="true"></i>
+                        </button>
+                        <div id="decision-content-2" class="accordion-content px-8 text-brand-mutedLight dark:text-brand-mutedDark text-sm">
+                            <div class="pb-6 pt-2 space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="p-4 rounded-xl bg-brand-bgLight dark:bg-brand-bgDark space-y-2">
+                                        <h4 class="font-semibold text-brand-richBlack dark:text-white">List View over Tile Grid</h4>
+                                        <p class="text-xs leading-relaxed">Despite a 54.5% Tile vs 45.5% List preference vote, List view was selected because inline challenge descriptions prevented excessive tap-depth for new users.</p>
+                                        <h4 class="font-semibold text-brand-richBlack dark:text-white pt-2">Softer Badge Visuals</h4>
+                                        <p class="text-xs leading-relaxed">Hexagonal badges were perceived as rigid and "off-brand". Shifted to rounded organic shapes with soft drop shadows.</p>
+                                    </div>
+                                    <div class="p-4 rounded-xl bg-brand-bgLight dark:bg-brand-bgDark space-y-2">
+                                        <h4 class="font-semibold text-brand-richBlack dark:text-white">WCAG Accessibility Actions</h4>
+                                        <ul class="text-xs space-y-1 list-disc list-inside">
+                                            <li>Fixed incomplete greyscale contrast (from 1.1:1 up to 3.5:1 WCAG standard).</li>
+                                            <li>Replaced punitive red progress bars with encouraging vibrant amber/orange.</li>
+                                            <li>Added explicit screen reader programmatic labels (e.g., "Volunteer challenge - in progress - 45% complete").</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion Item 3 -->
+                    <div class="border border-brand-borderLight dark:border-brand-borderDark rounded-2xl bg-brand-cardLight dark:bg-brand-cardDark overflow-hidden">
+                        <button type="button" aria-expanded="false" aria-controls="decision-content-3" class="accordion-header w-full px-8 py-6 text-left flex items-center justify-between font-serif text-2xl hover:text-brand-vibrantOrange transition-colors btn-interactive" onclick="toggleMainAccordion(this)">
+                            <span>3. Friendship &amp; Safeguarding Architecture</span>
+                            <i class="fa-solid fa-plus text-sm transition-transform duration-300" aria-hidden="true"></i>
+                        </button>
+                        <div id="decision-content-3" class="accordion-content px-8 text-brand-mutedLight dark:text-brand-mutedDark text-sm">
+                            <div class="pb-6 pt-2 space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="p-4 rounded-xl bg-brand-bgLight dark:bg-brand-bgDark">
+                                        <h4 class="font-semibold text-brand-richBlack dark:text-white mb-1">Mutual Status Clarity</h4>
+                                        <p class="text-xs leading-relaxed">Usability testing revealed ambiguity between 1-way and 2-way follow states. Updated profile headers with explicit badges ("Follows You", "Following").</p>
+                                    </div>
+                                    <div class="p-4 rounded-xl bg-brand-bgLight dark:bg-brand-bgDark">
+                                        <h4 class="font-semibold text-brand-richBlack dark:text-white mb-1">Safeguarding &amp; Blocking UI</h4>
+                                        <p class="text-xs leading-relaxed">Refined blocking iconography and added mandatory confirmation modals with explicit copy to eliminate accidental blocking during fast finish-line scanning.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- FIGURE 3: INTERACTIVE SURVEY ANALYTICS CHART -->
+                <div class="p-8 sm:p-10 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-mono text-brand-vibrantOrange font-semibold">FIGURE 3: SURVEY ANALYTICS</span>
+                            <h3 class="font-serif text-2xl mt-1">Dashboard Structure Community Preference Split</h3>
+                        </div>
+                        <span class="text-xs px-3 py-1 rounded-full bg-brand-vibrantOrange/10 text-brand-vibrantOrange font-medium">N = 524 Respondents</span>
+                    </div>
+
+                    <!-- Custom Visual Progress Bar Chart -->
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span>3-Element "Trio" Dashboard (Design A1)</span>
+                                <span class="text-brand-vibrantOrange font-bold">47% (246 votes)</span>
+                            </div>
+                            <div class="w-full bg-brand-borderLight dark:bg-brand-borderDark h-4 rounded-full overflow-hidden">
+                                <div class="bg-brand-vibrantOrange h-full rounded-full" style="width: 47%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span>4-Element Compact Grid Dashboard (Design B2)</span>
+                                <span class="text-brand-hotPink font-bold">53% (278 votes)</span>
+                            </div>
+                            <div class="w-full bg-brand-borderLight dark:bg-brand-borderDark h-4 rounded-full overflow-hidden">
+                                <div class="bg-brand-hotPink h-full rounded-full" style="width: 53%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed pt-2 border-t border-brand-borderLight dark:border-brand-borderDark">
+                        <strong>Strategic Choice:</strong> Although 4-element grid received 53% initial votes, Design A1 was selected following focus group evaluations because 3 landscape cards prevented typography truncation on smaller mobile viewports.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECTION 4: OUTCOMES & IMPACT -->
+            <section class="space-y-12 reveal-on-scroll border-t border-brand-borderLight dark:border-brand-borderDark pt-16">
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-brand-vibrantOrange font-semibold">04 / Outcomes &amp; Impact</span>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-normal mt-2">Results &amp; Final Artefacts</h2>
+                </div>
+
+                <!-- Stat Callout Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border-2 border-brand-vibrantOrange text-center space-y-2 shadow-lg shadow-brand-vibrantOrange/10">
+                        <span class="font-serif text-5xl sm:text-6xl font-normal text-brand-vibrantOrange">70%+</span>
+                        <h3 class="font-semibold text-base">User Satisfaction</h3>
+                        <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">Overall satisfaction rating recorded during post-launch community evaluation.</p>
+                    </div>
+
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border-2 border-brand-hotPink text-center space-y-2 shadow-lg shadow-brand-hotPink/10">
+                        <span class="font-serif text-5xl sm:text-6xl font-normal text-brand-hotPink">Prominent</span>
+                        <h3 class="font-semibold text-base">Planner Engagement</h3>
+                        <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">Direct increase in active engagement with the parkrun Planner tool.</p>
+                    </div>
+
+                    <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border-2 border-brand-warmYellow text-center space-y-2 shadow-lg shadow-brand-warmYellow/10">
+                        <span class="font-serif text-5xl sm:text-6xl font-normal text-brand-warmYellow">WCAG AA</span>
+                        <h3 class="font-semibold text-base">Accessibility Standard</h3>
+                        <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">Full accessibility compliance across dark mode, contrast, and live screen readers.</p>
+                    </div>
+                </div>
+
+                <!-- Final Artefacts Showcase Grid -->
+                <div class="space-y-6">
+                    <h3 class="font-serif text-2xl">Final Design Artefacts</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <div class="p-6 rounded-2xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-3">
+                            <div class="w-8 h-8 rounded-full bg-brand-vibrantOrange/10 text-brand-vibrantOrange flex items-center justify-center font-bold text-sm">A</div>
+                            <h4 class="font-semibold text-lg">Central Dashboard &amp; Nav</h4>
+                            <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed">
+                                Rebranded central homepage dashboard featuring the 3-element landscape widget hierarchy and 5-icon bottom navigation bar.
+                            </p>
+                        </div>
+
+                        <div class="p-6 rounded-2xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-3">
+                            <div class="w-8 h-8 rounded-full bg-brand-hotPink/10 text-brand-hotPink flex items-center justify-center font-bold text-sm">B</div>
+                            <h4 class="font-semibold text-lg">Challenge Progress System</h4>
+                            <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed">
+                                List view layout with rounded badges, high-contrast progress bars, inline descriptions, and post-event congratulatory modals.
+                            </p>
+                        </div>
+
+                        <div class="p-6 rounded-2xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-3">
+                            <div class="w-8 h-8 rounded-full bg-brand-brightRed/10 text-brand-brightRed flex items-center justify-center font-bold text-sm">C</div>
+                            <h4 class="font-semibold text-lg">Comprehensive Social Suite</h4>
+                            <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed">
+                                Friend Search, Follower/Following management, Blocked user controls, and explicit mutual relationship status badges.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Key Results Summary -->
+                <div class="p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                    <h3 class="font-serif text-2xl">Results &amp; Key Impact</h3>
+                    <ul class="space-y-3 text-sm text-brand-mutedLight dark:text-brand-mutedDark list-disc list-inside leading-relaxed">
+                        <li>Achieved over 70% satisfaction rating among engaged community testers during initial rebrand evaluation.</li>
+                        <li>Prominent homepage placement of the parkrun Planner directly increased user feature engagement post-launch.</li>
+                        <li>Delivered a safer, WCAG-compliant social experience with minimal software bugs upon rollout.</li>
+                    </ul>
+                </div>
+
+                <!-- Reflections & Next Steps -->
+                <div class="p-8 rounded-3xl bg-brand-bgLight dark:bg-brand-bgDark border border-brand-borderLight dark:border-brand-borderDark space-y-4">
+                    <h3 class="font-serif text-2xl text-brand-vibrantOrange">Reflections &amp; Next Steps</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-brand-mutedLight dark:text-brand-mutedDark leading-relaxed">
+                        <div>
+                            <strong class="text-brand-richBlack dark:text-white block mb-1">Customization Roadmap:</strong>
+                            Future roadmap items should re-evaluate customizable dashboard widgets when dev resources allow.
+                        </div>
+                        <div>
+                            <strong class="text-brand-richBlack dark:text-white block mb-1">Community Communication:</strong>
+                            Proactive community messaging is critical prior to major UI rollouts to mitigate change-resistance.
+                        </div>
+                        <div>
+                            <strong class="text-brand-richBlack dark:text-white block mb-1">Hardware Screen Reader Testing:</strong>
+                            Accessibility testing must transition from static PDF mockups to native live screen-reader testing on real hardware.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation CTA -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-6 p-8 rounded-3xl bg-brand-cardLight dark:bg-brand-cardDark border border-brand-borderLight dark:border-brand-borderDark">
+                    <div>
+                        <h3 class="font-serif text-2xl">Interested in more work?</h3>
+                        <p class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">Explore Dido's other mobile UX design case studies or get in touch.</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button type="button" onclick="switchView('portfolio')" class="btn-interactive px-6 py-3 rounded-full bg-brand-vibrantOrange hover:bg-brand-brightRed text-white font-medium text-xs">
+                            View All Case Studies
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- VIEW 2: MAIN PORTFOLIO OVERVIEW PAGE (HIDDEN BY DEFAULT WHEN IN CASE STUDY)-->
+        <!-- ========================================================================= -->
+        <div id="portfolio-overview-view" class="page-view hidden-view">
+            
+            <!-- HERO SECTION -->
+            <section id="about" class="min-h-[80vh] flex flex-col justify-center max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-b border-brand-borderLight/80 dark:border-brand-borderDark/80">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+                    
+                    <div class="lg:col-span-8 space-y-8 reveal-on-scroll">
+                        <div class="inline-flex items-center space-x-2 text-xs uppercase tracking-widest font-semibold px-4 py-2 rounded-full border border-brand-vibrantOrange/30 bg-brand-vibrantOrange/10 text-brand-vibrantOrange">
+                            <span class="w-2 h-2 rounded-full bg-brand-vibrantOrange animate-ping" aria-hidden="true"></span>
+                            <span>London-Based UX/UI Designer</span>
+                        </div>
+
+                        <h2 class="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal leading-[1.2] tracking-tight text-brand-richBlack dark:text-white">
+                            Hi! I’m Dido – a London-based <span class="text-gradient-orange-pink underline decoration-brand-warmYellow decoration-wavy decoration-2">UX/UI designer</span> with a decade of visual design experience, crafting <span class="text-[#EE5FA6]">intuitive, user-centered</span> designs that turn complex challenges into <span class="text-[#FB6B05] font-serif italic">moments of delight</span>.
+                        </h2>
+
+                        <p class="text-lg text-brand-mutedLight dark:text-brand-mutedDark max-w-2xl leading-relaxed font-light">
+                            Specializing in modern mobile experience design, cohesive design systems, user testing, and interactive high-fidelity prototyping.
+                        </p>
+
+                        <div class="pt-2 flex flex-wrap items-center gap-4">
+                            <button type="button" onclick="switchView('parkrun')" class="btn-interactive inline-flex items-center space-x-3 bg-brand-vibrantOrange hover:bg-brand-brightRed text-white px-8 py-4 rounded-full font-medium text-sm shadow-lg shadow-brand-vibrantOrange/20">
+                                <span>Read parkrun Case Study</span>
+                                <i class="fa-solid fa-arrow-right-long text-xs" aria-hidden="true"></i>
+                            </button>
+                            <a href="#contact" class="btn-interactive inline-flex items-center space-x-3 border-2 border-brand-richBlack dark:border-white hover:border-brand-hotPink hover:text-brand-hotPink px-8 py-4 rounded-full font-medium text-sm">
+                                <span>Get in Touch</span>
+                                <i class="fa-solid fa-envelope text-xs" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-4 flex justify-center reveal-on-scroll">
+                        <div class="relative p-3 bg-gradient-to-tr from-[#FB6B05] via-[#FFCA45] to-[#EE5FA6] rounded-3xl shadow-2xl hover:rotate-1 transition-transform duration-500">
+                            <div class="relative w-64 h-64 sm:w-80 sm:h-80 rounded-2xl overflow-hidden bg-brand-richBlack border border-white/20">
+                                <img src="https://cdn.prod.website-files.com/6ac50fe227b1ec6b8e535c8f/6ac6588fc189f272c22f94d3_ce490296d7e7c450b8b441e4fda87631_Profile%20pic.png" alt="Dido O'Reilly Profile Portrait" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- PORTFOLIO GRID SHOWCASE -->
+            <section id="works" class="max-w-7xl mx-auto px-6 md:px-12 py-24 border-b border-brand-borderLight/80 dark:border-brand-borderDark/80">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                    <div>
+                        <span class="text-xs uppercase tracking-widest text-brand-vibrantOrange font-semibold">Featured Projects</span>
+                        <h2 class="font-serif text-3xl sm:text-5xl font-normal mt-2">All Case Studies</h2>
+                    </div>
+                </div>
+
+                <div class="space-y-12">
+                    <!-- Case Study Card 1: parkrun -->
+                    <article class="card-hover-effect group cursor-pointer grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-brand-cardLight dark:bg-brand-cardDark p-6 sm:p-10 rounded-3xl border border-brand-borderLight dark:border-brand-borderDark shadow-sm hover:border-brand-vibrantOrange/60" onclick="switchView('parkrun')">
+                        <div class="lg:col-span-7 card-image-hover relative aspect-[16/10] rounded-2xl bg-brand-richBlack overflow-hidden border border-brand-borderLight/40 dark:border-brand-borderDark/40">
+                            <img src="https://cdn.prod.website-files.com/6ac50fe227b1ec6b8e535c8f/6accdfd425c71e85d499b565_parkrun-Rebrand-Visual.png" alt="The Official parkrun App UI Preview" class="w-full h-full object-cover">
+                        </div>
+                        <div class="lg:col-span-5 space-y-5">
+                            <div class="inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-[#FB6B05]/10 text-[#FB6B05] border border-[#FB6B05]/20">
+                                Rebranding &amp; App UI Redesign
+                            </div>
+                            <h3 class="font-serif text-3xl sm:text-4xl font-normal group-hover:text-brand-vibrantOrange transition-colors">
+                                The Official parkrun App: Reimagined
+                            </h3>
+                            <p class="text-brand-mutedLight dark:text-brand-mutedDark text-sm leading-relaxed">
+                                Bringing the parkrun official brand identity to life while streamlining UX, redesigning UI, improving WCAG AA accessibility, and introducing safe social friendship features.
+                            </p>
+                            <div class="pt-2 flex items-center justify-between border-t border-brand-borderLight dark:border-brand-borderDark">
+                                <span class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-brand-vibrantOrange">
+                                    <span>Read Dedicated Case Study Page</span>
+                                    <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+                                </span>
+                                <span class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">2024</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Case Study Card 2: SmartStock App -->
+                    <article class="card-hover-effect group cursor-pointer grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-brand-cardLight dark:bg-brand-cardDark p-6 sm:p-10 rounded-3xl border border-brand-borderLight dark:border-brand-borderDark shadow-sm hover:border-brand-brightRed/60" onclick="openDrawer('smartstock')">
+                        <div class="lg:col-span-7 card-image-hover relative aspect-[16/10] rounded-2xl bg-brand-richBlack overflow-hidden border border-brand-borderLight/40 dark:border-brand-borderDark/40">
+                            <img src="https://cdn.prod.website-files.com/6ac50fe227b1ec6b8e535c8f/6acc2380c816eb85bbdfbdee_PantryPrototype-DiscoverPage-v2.png" alt="SmartStock App UI Interface Preview" class="w-full h-full object-cover">
+                        </div>
+                        <div class="lg:col-span-5 space-y-5">
+                            <div class="inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-[#FC958D]/10 text-[#EC220D] border border-[#FC958D]/20">
+                                Product Design &amp; Prototyping
+                            </div>
+                            <h3 class="font-serif text-3xl sm:text-4xl font-normal group-hover:text-brand-brightRed transition-colors">
+                                SmartStock App
+                            </h3>
+                            <p class="text-brand-mutedLight dark:text-brand-mutedDark text-sm leading-relaxed">
+                                Transforming cluttered fridges into effortless meals by combining camera shelf tracking, smart recipe matching, and 1-click supermarket basket integration.
+                            </p>
+                            <div class="pt-2 flex items-center justify-between border-t border-brand-borderLight dark:border-brand-borderDark">
+                                <span class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-brand-brightRed">
+                                    <span>Quick View Case Study</span>
+                                    <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+                                </span>
+                                <span class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">2024</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+
+        <!-- CONTACT SECTION (SHARED ACROSS VIEWS) -->
+        <section id="contact" class="max-w-7xl mx-auto px-6 md:px-12 py-24 border-t border-brand-borderLight/80 dark:border-brand-borderDark/80">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+                
+                <div class="lg:col-span-5 space-y-8 reveal-on-scroll">
+                    <div>
+                        <span class="text-xs uppercase tracking-widest text-brand-vibrantOrange font-semibold">Contact</span>
+                        <h2 class="font-serif text-4xl sm:text-5xl font-normal mt-2">Get in touch.</h2>
+                    </div>
+
+                    <p class="text-brand-mutedLight dark:text-brand-mutedDark text-sm leading-relaxed">
+                        Available for select product design projects, design system initiatives, and UX consulting in London and worldwide.
+                    </p>
+
+                    <div class="space-y-4 pt-2">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 rounded-full bg-brand-vibrantOrange/10 text-brand-vibrantOrange flex items-center justify-center text-sm" aria-hidden="true">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">Email</div>
+                                <a href="mailto:didooreilly@gmail.com" class="text-sm font-medium hover:text-brand-vibrantOrange transition-colors btn-interactive inline-block py-1">didooreilly@gmail.com</a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 rounded-full bg-brand-hotPink/10 text-brand-hotPink flex items-center justify-center text-sm" aria-hidden="true">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-brand-mutedLight dark:text-brand-mutedDark">Location</div>
+                                <div class="text-sm font-medium" id="studio-clock">London, UK — 00:00:00 GMT</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="lg:col-span-7 bg-brand-cardLight dark:bg-brand-cardDark p-8 sm:p-10 rounded-3xl border border-brand-borderLight dark:border-brand-borderDark shadow-sm reveal-on-scroll">
+                    <form id="project-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label for="contact-name" class="block text-xs uppercase tracking-wider text-brand-mutedLight dark:text-brand-mutedDark mb-2">Name</label>
+                                <input id="contact-name" type="text" required placeholder="Your name" class="w-full bg-brand-bgLight dark:bg-brand-bgDark border border-brand-borderLight dark:border-brand-borderDark rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-vibrantOrange transition-colors">
+                            </div>
+                            <div>
+                                <label for="contact-email" class="block text-xs uppercase tracking-wider text-brand-mutedLight dark:text-brand-mutedDark mb-2">Email</label>
+                                <input id="contact-email" type="email" required placeholder="your.email@example.com" class="w-full bg-brand-bgLight dark:bg-brand-bgDark border border-brand-borderLight dark:border-brand-borderDark rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-vibrantOrange transition-colors">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="contact-message" class="block text-xs uppercase tracking-wider text-brand-mutedLight dark:text-brand-mutedDark mb-2">Message</label>
+                            <textarea id="contact-message" rows="4" required placeholder="Tell me about your project or inquiry..." class="w-full bg-brand-bgLight dark:bg-brand-bgDark border border-brand-borderLight dark:border-brand-borderDark rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-vibrantOrange transition-colors"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-interactive w-full bg-brand-vibrantOrange hover:bg-brand-brightRed text-white py-4 rounded-xl font-medium text-sm transition-colors duration-300 shadow-md shadow-brand-vibrantOrange/20">
+                            Send Message
+                        </button>
+                    </form>
+
+                    <div id="form-toast" class="hidden mt-4 p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs text-center font-medium" role="alert">
+                        Thank you for your message! I will get back to you shortly.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ACCESSIBLE CASE STUDY QUICK MODAL DRAWER -->
+    <div id="case-study-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" class="drawer-overlay fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex justify-end">
+        <div class="drawer-panel w-full max-w-2xl bg-brand-bgLight dark:bg-brand-bgDark h-full overflow-y-auto p-8 sm:p-12 flex flex-col justify-between shadow-2xl">
+            <div>
+                <div class="flex items-center justify-between pb-6 border-b border-brand-borderLight dark:border-brand-borderDark">
+                    <span id="drawer-category" class="text-xs uppercase tracking-widest text-brand-vibrantOrange font-semibold">Case Study</span>
+                    <button type="button" onclick="closeDrawer()" aria-label="Close Case Study Details" class="btn-interactive p-2 rounded-lg text-lg hover:text-brand-vibrantOrange transition-colors">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div class="py-8 space-y-6">
+                    <h2 id="drawer-title" class="font-serif text-3xl sm:text-4xl font-normal">Project Title</h2>
+                    <div class="aspect-[16/10] rounded-2xl overflow-hidden bg-brand-richBlack border border-brand-borderLight/30 dark:border-brand-borderDark/30">
+                        <img id="drawer-image" src="" alt="Case study visual representation" class="w-full h-full object-cover">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-xs py-4 border-y border-brand-borderLight dark:border-brand-borderDark">
+                        <div>
+                            <span class="text-brand-mutedLight dark:text-brand-mutedDark block">Focus</span>
+                            <span id="drawer-role" class="font-medium text-brand-richBlack dark:text-white">UX/UI Design</span>
+                        </div>
+                        <div>
+                            <span class="text-brand-mutedLight dark:text-brand-mutedDark block">Location</span>
+                            <span id="drawer-year" class="font-medium text-brand-richBlack dark:text-white">London, UK</span>
+                        </div>
+                    </div>
+                    <p id="drawer-description" class="text-brand-mutedLight dark:text-brand-mutedDark text-sm leading-relaxed"></p>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-brand-borderLight dark:border-brand-borderDark">
+                <a href="#contact" onclick="closeDrawer()" class="btn-interactive block w-full text-center bg-brand-vibrantOrange hover:bg-brand-brightRed text-white py-3.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-colors">
+                    Inquire About This Work
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-brand-borderLight dark:border-brand-borderDark py-16 bg-brand-bgLight dark:bg-brand-bgDark transition-colors duration-500">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 space-y-12">
+            
+            <div class="max-w-3xl reveal-on-scroll">
+                <h2 class="font-serif text-3xl sm:text-5xl font-normal text-brand-richBlack dark:text-white leading-tight">
+                    Let’s connect &amp; build <span class="text-gradient-orange-pink">delightful</span> user experiences.
+                </h2>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 pt-6 border-t border-brand-borderLight/60 dark:border-brand-borderDark/60 text-xs text-brand-mutedLight dark:text-brand-mutedDark">
+                <div class="flex items-center space-x-3">
+                    <img src="https://cdn.prod.website-files.com/6ac50fe227b1ec6b8e535c8f/6ac61788c6abfb927e034bcc_fae5d8fb0de533a537d1d83e6acdacd0_Logo%201.svg" alt="Dido O'Reilly Small Logo" class="h-6 dark:invert">
+                    <span>© 2026 Dido O'Reilly. All rights reserved.</span>
+                </div>
+
+                <div class="flex items-center space-x-6">
+                    <button type="button" onclick="switchView('parkrun')" class="hover:text-brand-vibrantOrange transition-colors btn-interactive py-1">parkrun Case Study</button>
+                    <a href="https://dido-oreilly.webflow.io/" target="_blank" rel="noopener noreferrer" class="hover:text-brand-vibrantOrange transition-colors btn-interactive py-1">Original Webflow Site</a>
+                    <a href="#contact" class="hover:text-brand-vibrantOrange transition-colors btn-interactive py-1">Contact</a>
+                </div>
+
+                <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="btn-interactive hover:text-brand-vibrantOrange transition-colors inline-flex items-center space-x-2 py-1">
+                    <span>Back to Top</span>
+                    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+                </button>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT & ACCESSIBILITY SCRIPTS -->
+    <script>
+        // Case Study Quick Data
+        const caseStudies = {
+            smartstock: {
+                title: "SmartStock App",
+                category: "Product Design & Prototyping",
+                role: "Product Design & Prototyping",
+                year: "London, UK",
+                image: "https://cdn.prod.website-files.com/6ac50fe227b1ec6b8e535c8f/6acc2380c816eb85bbdfbdee_PantryPrototype-DiscoverPage-v2.png",
+                description: "Transforming cluttered fridges into effortless meals by combining camera shelf tracking, smart recipe matching, and 1-click supermarket basket integration."
+            }
+        };
+
+        // View Switching Mechanism (parkrun Landing Page vs Portfolio Overview)
+        function switchView(viewName) {
+            const parkrunView = document.getElementById('parkrun-case-study-view');
+            const portfolioView = document.getElementById('portfolio-overview-view');
+
+            if (viewName === 'parkrun') {
+                parkrunView.classList.remove('hidden-view');
+                portfolioView.classList.add('hidden-view');
+            } else {
+                portfolioView.classList.remove('hidden-view');
+                parkrunView.classList.add('hidden-view');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            lightIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            darkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            darkIcon.classList.toggle('hidden');
+            lightIcon.classList.toggle('hidden');
+
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        });
+
+        // Mobile Menu Helpers
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+            mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        function closeMobileMenu() {
+            mobileMenu.classList.add('hidden');
+            mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        // Real-Time London Clock
+        function updateClocks() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-GB', { timeZone: 'Europe/London' }) + ' GMT';
+            const studioClock = document.getElementById('studio-clock');
+            const mobileClock = document.getElementById('mobile-clock');
+
+            if (studioClock) studioClock.innerText = `London, UK — ${timeString}`;
+            if (mobileClock) mobileClock.innerText = timeString;
+        }
+        setInterval(updateClocks, 1000);
+        updateClocks();
+
+        // Accordion Helpers
+        function toggleMainAccordion(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('i');
+            const isOpen = content.classList.contains('open');
+
+            content.classList.toggle('open');
+            header.setAttribute('aria-expanded', !isOpen);
+
+            if (!isOpen) {
+                icon.classList.remove('fa-plus');
+                icon.classList.add('fa-minus');
+            } else {
+                icon.classList.remove('fa-minus');
+                icon.classList.add('fa-plus');
+            }
+        }
+
+        // Drawer Modal Controls
+        function openDrawer(key) {
+            const data = caseStudies[key];
+            if (!data) return;
+
+            document.getElementById('drawer-title').innerText = data.title;
+            document.getElementById('drawer-category').innerText = data.category;
+            document.getElementById('drawer-role').innerText = data.role;
+            document.getElementById('drawer-year').innerText = data.year;
+            document.getElementById('drawer-image').src = data.image;
+            document.getElementById('drawer-description').innerText = data.description;
+
+            const drawer = document.getElementById('case-study-drawer');
+            drawer.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+            const drawer = document.getElementById('case-study-drawer');
+            drawer.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close Modal on Esc key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDrawer();
+                closeMobileMenu();
+            }
+        });
+
+        // IntersectionObserver for Scroll Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+            scrollObserver.observe(el);
+        });
+
+        // Form Submit Handler
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const toast = document.getElementById('form-toast');
+            toast.classList.remove('hidden');
+            event.target.reset();
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
